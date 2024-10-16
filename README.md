@@ -46,11 +46,7 @@ What do I need for it?
 
 Not much! You just need PHP 5 and a database to store the wordlist.
 
-Currently, there are three backends to choose from for use with one of the following databases:
-
-* `Berkeley DB <http://oracle.com/technetwork/products/berkeleydb/downloads/index.html>`_
-* `MySQL <http://mysql.com/>`_
-* `PostgreSQL <http://postgresql.org/>`_
+This version is specifically designed for MySQL / PDO PHP, it doesn't have the support for Berkeley DB / mysqli / PostgreSQL. If you need support for these database systems, please see this repository: https://github.com/byjg/b8
 
 What's different?
 -----------------
@@ -66,7 +62,10 @@ This means that b8 might be good for classifying weblog comments, guestbook entr
 Installation
 ============
 
-Installing b8 on your server is quite easy. You just have to provide the needed files. To do this, you could just upload the whole ``b8`` subdirectory to the base directory of your homepage. It contains the filter itself and all needed backend classes. The other directories (``doc``, ``example``, ``install`` and ``update``) are not used by b8.
+Installing b8 on your server is quite easy:
+
+1) Upload the whole folder to your server
+2) Create the database table specified in install/setup_pdo.php
 
 That's it ;-)
 
@@ -74,7 +73,6 @@ Configuration
 =============
 
 The configuration is passed as arrays when instantiating a new b8 object. Four arrays can be passed to b8. One containing b8's base configuration, one for the storage backend, one for the lexer and one for the degenerator. |br|
-You can have a look at ``example/index.php`` to see how this can be done. `Using b8 in your scripts`_ also shows example code showing how b8 can be included in a PHP script.
 
 Not all values have to be set. When some values are missing, the default ones will be used. If you do use the default settings, you don't have to pass them to b8. But of course, if you want to set something in e. g. the fourth config array, but not in the third, you will have to pass an empty ``array()`` as third parameter anyway.
 
@@ -88,19 +86,8 @@ These are some basic settings telling b8 which backend classes to use:
     **storage**
         This defines which storage backend will be used to save b8's wordlist. Currently, three databases are supported: `Berkeley DB <http://oracle.com/technetwork/products/berkeleydb/downloads/index.html>`_ (``dba``), `MySQL <http://mysql.com/>`_ (``mysql`` and ``mysqli``) and `PostgreSQL <http://postgresql.org/>`_ (``postgresql``). An experimental backend for `SQLite <http://sqlite.org/>`_ resides in SVN trunk but has not reached release quality yet. The default is ``dba`` (string).
 
-        *dba (Berkeley DB)*
-            This has been the original backend for the filter. All content is saved in a single file, you don't need special user rights or a database server. Probably a good choice, as this is very performant and fits exactly to b8's needs. |br|
-            If you don't know whether your server's PHP installation supports Berkeley DB, simply run the script ``install/setup_berkeleydb.php``. If it shows a Berkeley DB handler, you can use this backend.
-
-        *mysqli (MySQL)*
-            The MySQL relational database system is used very widely on the web and can also be used for storing b8's wordlist. This backend needs of course a running and accessable MySQL server and database. The backend uses the mysqli\_* PHP functions to interact with the database.
-
-        *mysql (MySQL)*
-            This is the original MySQL backend using the legacy mysql\_* PHP functions. PHP encourages users to use the newer mysqli\_* functions. The functions used by this backend have been removed in PHP 7.0.0, so eventually, this backend will also be removed from b8.
-
-        *postgresql (PostgreSQL)*
-            A PostgreSQL schema with one table can also be used for storing b8's wordlist. This backend needs of course a running and accessable PostgreSQL server and database. |br|
-            Communication with the DB server is done via PDO, so you need PHP >= 5.1 compiled with ``--with-pdo-pgsql`` to use this backend.
+        *PDO (MySQL)*
+            The MySQL relational database system is used very widely on the web and can also be used for storing b8's wordlist. This backend needs of course a running and accessable MySQL server and database. The backend uses the PDO PHP functions to interact with the database.
 
         See `Configuration of the storage backend`_ for the settings of the chosen backend.
 
@@ -190,24 +177,10 @@ Before you can start, you have to setup a database so that b8 can store a wordli
 Setting up a new database
 -------------------------
 
-Setting up a new Berkeley DB
-````````````````````````````
-
-There's a script that automates setting up a new Berkeley DB for b8. It is located at ``install/setup_berkeleydb.php``. Just run this script on your server and be sure that the directory containing it has the proper access rights set so that the server's HTTP server user or PHP user can create a new file in it (probably ``0777``). The script is quite self-explaining, just run it.
-
-If you prefer to setup a new b8 Berkeley DB manually, just create an empty database and insert the following values:
-
-::
-
-    "b8*dbversion" => "3"
-    "b8*texts"     => "0 0"
-
-Be sure to set the right DBA handler in the storage backend configuration if it's not ``db4``.
-
 Setting up a new MySQL table
 ````````````````````````````
 
-The SQL file ``install/setup_mysql.sql`` contains both the ``CREATE`` statement for the wordlist table of b8 and the ``INSERT`` statements for adding the necessary internal variables.
+The SQL file ``install/setup_pdo.sql`` contains both the ``CREATE`` statement for the wordlist table of b8 and the ``INSERT`` statements for adding the necessary internal variables.
 
 Simply change the table name according to your needs (or leave it as it is ;-) and run the SQL to setup a MySQL b8 wordlist table.
 
@@ -333,12 +306,7 @@ All in all, there seems to be no easy way to implement multiple (meaning more th
 What about a list with words to ignore?
 ```````````````````````````````````````
 
-Some people suggested to introduce a list with words that b8 will simply ignore. Like "and", "or", "the", and so on. I don't think this is very meaningful.
-
-First, it would just work for the particular language that has been stored in the list. Speaking of my homepage, most of my spam is English, almost all my ham is German. So I would have to maintain a list with the probably less interesting words for at least two languages. Additionally, I get spam in Chinese, Japanese and Cyrillic writing or something else I can't read as well. What word should be ignored in those texts? |br|
-Second, why should we ever exclude words? Who tells us those words are *actually* meaningless? If a word appears both in ham and spam, it's rating will be near 0.5 and so, it won't be used for the final calculation anyway if a appropriate minimum deviation was set. So b8 will exclude it without having to maintain a blacklist. And think of this: if we excluded a word of which we only *think* it doesn't mean anything but it actually does appear more often in ham or spam, the results will get even worse.
-
-So why should we care about things we do not have to care about? ;-)
+This version features a list of words to ignore. You can complete it by editing the line 32 of lexer/standard.php 
 
 Why is it called "b8"?
 ``````````````````````
