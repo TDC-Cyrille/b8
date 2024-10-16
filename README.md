@@ -178,7 +178,7 @@ Setting up a new database
 -------------------------
 
 Setting up a new MySQL table
-````````````````````````````
+-------------------------
 
 The SQL file ``install/setup_pdo.sql`` contains both the ``CREATE`` statement for the wordlist table of b8 and the ``INSERT`` statements for adding the necessary internal variables.
 
