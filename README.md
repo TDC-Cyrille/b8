@@ -65,7 +65,7 @@ Installation
 Installing b8 on your server is quite easy:
 
 1) Upload the whole folder to your server
-2) Create the database table specified in install/setup_pdo.php
+2) Create the database table specified in install/setup_mysql.php
 
 That's it ;-)
 
@@ -187,53 +187,45 @@ Simply change the table name according to your needs (or leave it as it is ;-) a
 Using b8 in your scripts
 ------------------------
 
-Just have a look at the example script ``example/index.php`` to see how you can include b8 in your scripts. Essentially, this strips down to:
+Running b8 is very simple, first you need to include the file ``b8.php``
 
-```php
-<?php
+	require_once( 'b8.php' ); // Make sure to use the right folder
 
-use B8\B8;
-use B8\ConfigB8;
-use B8\Degenerator\ConfigDegenerator;
-use B8\Degenerator\StandardDegenerator;
-use B8\Lexer\ConfigLexer;
-use B8\Lexer\StandardLexer;
-use B8\Storage\Dba;
-use B8\Storage\Rdbms;
-use ByJG\Util\Uri;
+Then you can call it like this:
+	
+ 	try {
 
-$config_b8 = new ConfigB8();
+  		$b8 = new b8\b8( array( 'storage' => 'mysql' ), array( 'table' => 'b8_wordlist', 'resource' => $conn ) );
 
-# Tell b8 to use the new-style HTML extractor
-$lexer = new StandardLexer(
-        (new ConfigLexer())
-            ->setOldGetHtml(false)
-            ->setGetHtml(true)
-);
+		// b8 actions here
 
-# Tell the degenerator to use multibyte operations
-# (needs PHP's mbstring module! If you don't have it, set 'multibyte' to FALSE)
-$degenerator = new StandardDegenerator(
-        (new ConfigDegenerator())
-            ->setMultibyte(true)
-);
+ 	} catch( Exception $e ) {
+        print_r( $e );
+    }
 
-# If you want to access a DB Relational
-$uri = new Uri("sqlite:///tmp/teste.db");
-$storage = new Rdbms(
-    $uri,
-    $degenerator
-);
+Note that ``$conn`` should be a valid PDO Object that connects to the MySQL database and ``b8_wordlist`` should be replaced by the actual name of your table.
 
-# If you want to acess a Berkeley DB
-$storage = new Dba(
-    __DIR__ . "/wordlist.db",
-    $degenerator
-);
+The full script should then look like this:
 
-$b8 = new B8($config_b8, $storage, $lexer);
+	require_once( 'b8.php' );
 
-```
+	try {
+
+  		$b8 = new b8\b8( array( 'storage' => 'mysql' ), array( 'table' => 'b8_wordlist', 'resource' => $conn ) );
+
+		$b8->learn( 'India', 'spam' ); // These are samples, you will need to feed spam data to b8 depending on the context that you are using it in (for instance get the body of a spam email, strip the HTML tags and feed it to b8)
+		$b8->learn( 'Business development', 'spam' ); // These are samples, you will need to feed spam data to b8 depending on the context that you are using it in (for instance get the body of a spam email, strip the HTML tags and feed it to b8)
+ 		$b8->learn( 'outsource', 'spam' ); // These are samples, you will need to feed spam data to b8 depending on the context that you are using it in (for instance get the body of a spam email, strip the HTML tags and feed it to b8)
+		$b8->learn( 'Manektech', 'spam' ); // These are samples, you will need to feed spam data to b8 depending on the context that you are using it in (for instance get the body of a spam email, strip the HTML tags and feed it to b8)
+		$b8->learn( 'Kenscio', 'spam' ); // These are samples, you will need to feed spam data to b8 depending on the context that you are using it in (for instance get the body of a spam email, strip the HTML tags and feed it to b8)
+
+		$b8->classify( 'Hi Arthur, I still can’t see my landing page in the promotion tabs. Thanks James Dean' ); // This is a sample text, you would replace it with the text that you want to classify as spam/ham
+
+ 	} catch( Exception $e ) {
+        print_r( $e ); // Displays errors, you may want to add a handler here
+    }
+
+By default
 
 b8 provides three functions in an object oriented way (called e. g. via ``$b8->classify($text)``):
 
