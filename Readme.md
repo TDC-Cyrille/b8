@@ -1,4 +1,4 @@
-This is a fork of b8 with the following features:
+This is a fork of b8 from nasauber.de with the following features:
  - Installation without dependencies
  - Support of PHP PDO (the file is still called mysql.php due to limited time/laziness)
  - All tokens are now lowercase so that spammers can't evade the spam rules with different casings
