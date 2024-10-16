@@ -225,9 +225,7 @@ The full script should then look like this:
         print_r( $e ); // Displays errors, you may want to add a handler here
     }
 
-By default
-
-b8 provides three functions in an object oriented way (called e. g. via ``$b8->classify($text)``):
+By default b8 provides three functions in an object oriented way (called e. g. via ``$b8->classify($text)``):
 
 **classify($text)**
     This function takes the text ``$text`` (string), calculates it's probability for being spam and returns it in the form of a value between 0 and 1 (float). |br|
